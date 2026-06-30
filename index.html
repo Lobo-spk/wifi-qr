@@ -81,24 +81,36 @@ const SSID = "Globo_Guest";
 const SECURITY = "WPA";
 // =======================================================
 
-async function loadPassword() {
-  try {
-    const res = await fetch(APPS_SCRIPT_URL + "?format=json");
-    const data = await res.json();
-    const password = data.password || "—";
+function loadPassword() {
+  const script = document.createElement('script');
+  const callbackName = 'wifiCallback_' + Date.now();
 
-    document.getElementById('pw').textContent = password;
+  window[callbackName] = function(data) {
+    try {
+      const password = data.password || "—";
+      document.getElementById('pw').textContent = password;
 
-    const wifiStr = `WIFI:T:${SECURITY};S:${SSID};P:${password};;`;
-    const qrURL = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(wifiStr)}`;
-    document.getElementById('qr-wrap').innerHTML = `<img src="${qrURL}" alt="WiFi QR Code">`;
+      const wifiStr = `WIFI:T:${SECURITY};S:${SSID};P:${password};;`;
+      const qrURL = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(wifiStr)}`;
+      document.getElementById('qr-wrap').innerHTML = `<img src="${qrURL}" alt="WiFi QR Code">`;
 
-    if (data.error) {
-      const errEl = document.getElementById('error-msg');
-      errEl.textContent = "⚠️ " + data.error;
-      errEl.style.display = 'block';
+      if (data.error) {
+        const errEl = document.getElementById('error-msg');
+        errEl.textContent = "⚠️ " + data.error;
+        errEl.style.display = 'block';
+      }
+    } catch(e) {
+      showError();
     }
-  } catch (e) {
+    delete window[callbackName];
+    script.remove();
+  };
+
+  script.onerror = showError;
+  script.src = APPS_SCRIPT_URL + "?format=jsonp&callback=" + callbackName;
+  document.body.appendChild(script);
+
+  function showError() {
     document.getElementById('pw').textContent = "โหลดไม่สำเร็จ";
     const errEl = document.getElementById('error-msg');
     errEl.textContent = "⚠️ เชื่อมต่อข้อมูลไม่ได้ ลองรีเฟรชหน้านี้";
