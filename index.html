@@ -26,7 +26,6 @@
   .qr-wrap{
     display:inline-block;padding:14px;border:3px solid #ede7f6;
     border-radius:20px;background:#f9f6ff;margin-bottom:22px;
-    min-height:248px;display:flex;align-items:center;justify-content:center;
   }
   .qr-wrap img{width:220px;height:220px;display:block}
   .pw-box{
@@ -34,15 +33,9 @@
     padding:16px 20px;margin-bottom:22px;cursor:pointer;
   }
   .pw-label{font-size:.78rem;color:#9575cd;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
-  .pw-value{
-    font-size:2.2rem;font-weight:800;color:#4a148c;letter-spacing:5px;
-    user-select:all;transition:opacity .15s;
-  }
-  .pw-value:active{opacity:.6}
+  .pw-value{font-size:2.2rem;font-weight:800;color:#4a148c;letter-spacing:5px;user-select:all}
   .pw-hint{font-size:.72rem;color:#b39ddb;margin-top:6px}
-  .note{font-size:.78rem;color:#aaa;line-height:1.6}
-  .error{color:#e53935;font-size:.82rem;margin-top:8px}
-  .loading{color:#9575cd;font-size:.9rem}
+  .note{font-size:.72rem;color:#ccc}
   .toast{
     position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
     background:#4a148c;color:#fff;padding:12px 28px;border-radius:12px;
@@ -57,85 +50,34 @@
   <h1>Globo_Guest</h1>
   <p class="sub">Daily Password</p>
 
-  <div class="qr-wrap" id="qr-wrap">
-    <span class="loading">⏳ กำลังโหลด...</span>
+  <div class="qr-wrap">
+    <img src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=WIFI%3AT%3AWPA%3BS%3AGlobo_Guest%3BP%3A19566625%3B%3B" alt="WiFi QR Code">
   </div>
 
   <div class="pw-box" onclick="copyPW()">
     <div class="pw-label">🔑 Password</div>
-    <div class="pw-value" id="pw">...</div>
+    <div class="pw-value" id="pw">19566625</div>
     <div class="pw-hint">Click to copy the password</div>
   </div>
 
-  <p class="error" id="error-msg" style="display:none"></p>
-
-  <p class="note">🔄 The password changes automatically every day.</p>
+  <p class="note">🔄 The password changes automatically every day. (01/07/2026)</p>
 </div>
 
 <div class="toast" id="toast">✅ Copy แล้ว!</div>
 
 <script>
- const WIFI_PASSWORD = "";
-// ===== แก้ URL นี้เป็น Apps Script Web App ของคุณ =====
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbydNUvgwiamCl_ZyiayEy_vPZDqXkzksFbtFNNtRowpmoP8rk6m39tLc4bEEM0-i3is/exec";
-const SSID = "Globo_Guest";
-const SECURITY = "WPA";
-// =======================================================
-
-function loadPassword() {
-  const script = document.createElement('script');
-  const callbackName = 'wifiCallback_' + Date.now();
-
-  window[callbackName] = function(data) {
-    try {
-      const password = data.password || "—";
-      document.getElementById('pw').textContent = password;
-
-      const wifiStr = `WIFI:T:${SECURITY};S:${SSID};P:${password};;`;
-      const qrURL = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(wifiStr)}`;
-      document.getElementById('qr-wrap').innerHTML = `<img src="${qrURL}" alt="WiFi QR Code">`;
-
-      if (data.error) {
-        const errEl = document.getElementById('error-msg');
-        errEl.textContent = "⚠️ " + data.error;
-        errEl.style.display = 'block';
-      }
-    } catch(e) {
-      showError();
-    }
-    delete window[callbackName];
-    script.remove();
-  };
-
-  script.onerror = showError;
-  script.src = APPS_SCRIPT_URL + "?format=jsonp&callback=" + callbackName;
-  document.body.appendChild(script);
-
-  function showError() {
-    document.getElementById('pw').textContent = "โหลดไม่สำเร็จ";
-    const errEl = document.getElementById('error-msg');
-    errEl.textContent = "⚠️ เชื่อมต่อข้อมูลไม่ได้ ลองรีเฟรชหน้านี้";
-    errEl.style.display = 'block';
-  }
-}
-
 function copyPW(){
-  const pw = document.getElementById('pw').textContent.trim();
-  const toast = document.getElementById('toast');
-  const show = () => { toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'),1500); };
-  if(navigator.clipboard){
-    navigator.clipboard.writeText(pw).then(show).catch(fallback);
-  } else { fallback(); }
-  function fallback(){
-    const el = document.createElement('textarea');
-    el.value = pw; el.style.position='fixed'; el.style.opacity='0';
-    document.body.appendChild(el); el.select();
-    document.execCommand('copy'); document.body.removeChild(el);
-    show();
+  const pw=document.getElementById('pw').textContent.trim();
+  const toast=document.getElementById('toast');
+  const show=()=>{toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),1500)};
+  if(navigator.clipboard){navigator.clipboard.writeText(pw).then(show).catch(fb)}else{fb()}
+  function fb(){
+    const el=document.createElement('textarea');
+    el.value=pw;el.style.position='fixed';el.style.opacity='0';
+    document.body.appendChild(el);el.select();
+    document.execCommand('copy');document.body.removeChild(el);show();
   }
 }
-
-loadPassword();
 </script>
 </body>
 </html>
